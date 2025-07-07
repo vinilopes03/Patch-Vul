@@ -1,0 +1,45 @@
+{
+  "CWE-835": {
+    "id": "CWE-835",
+    "name": "Infinite Loop",
+    "description": "Loops that never terminate, such as while(true), for(;;), do-while(true), or other always-true conditions without a break.",
+    "ast_patterns": [
+      {
+        "node_type": "WhileStmt",
+        "fields": {
+          "potentially_infinite": true
+        },
+        "has_break": false
+      },
+      {
+        "node_type": "ForStmt",
+        "fields": {
+          "potentially_infinite": true
+        },
+        "has_break": false
+      },
+      {
+        "node_type": "DoStmt",
+        "fields": {
+          "potentially_infinite": true
+        },
+        "has_break": false
+      }
+    ]
+  },
+  "CWE-15": {
+    "id": "CWE-15",
+    "name": "External Control of System Setting",
+    "description": "Setting system properties using untrusted user input.",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "scope": "System",
+          "method_name": "setProperty",
+          "arg_user_controlled": true
+        }
+      }
+    ]
+  }
+}
