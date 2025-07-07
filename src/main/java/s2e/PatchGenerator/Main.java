@@ -12,21 +12,64 @@ public class Main {
         String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting";
         String jarDir = "/Users/vlopes/Desktop/Java/lib/";
 
+        // Check if files exist
+        File javaFileObj = new File(javaFile);
+        File patternFileObj = new File(patternFile);
+
+        if (!javaFileObj.exists()) {
+            System.err.println("Java file not found: " + javaFile);
+            return;
+        }
+        if (!patternFileObj.exists()) {
+            System.err.println("Pattern file not found: " + patternFile);
+            return;
+        }
+
         // Separate .jar files and support directories
         List<String> jarPaths = new ArrayList<>();
         List<String> classDirs = new ArrayList<>();
         classDirs.add(supportFilesDir);
 
-        File dir = new File(jarDir);
-        File[] jarFiles = dir.listFiles((d, name) -> name.endsWith(".jar"));
-        if (jarFiles != null) {
-            for (File jar : jarFiles) {
-                jarPaths.add(jar.getAbsolutePath());
+        // Add all JAR files from the jar directory
+        File jarDirFile = new File(jarDir);
+        if (jarDirFile.exists() && jarDirFile.isDirectory()) {
+            File[] jarFiles = jarDirFile.listFiles((d, name) -> name.endsWith(".jar"));
+            if (jarFiles != null) {
+                for (File jar : jarFiles) {
+                    jarPaths.add(jar.getAbsolutePath());
+                    System.out.println("Adding JAR: " + jar.getName());
+                }
             }
         }
 
+        System.out.println("\n========================================");
+        System.out.println("VULNERABILITY SCANNER - CWE Detection");
+        System.out.println("========================================");
+        System.out.println("Target file: " + javaFile);
+        System.out.println("Pattern file: " + patternFile);
+        System.out.println("Class directory: " + classDir);
+        System.out.println("Support files: " + supportFilesDir);
+        System.out.println("========================================\n");
+
         VulnerabilityScanner scanner = new VulnerabilityScanner(patternFile);
-        scanner.scan(javaFile, classDir, classDirs, jarPaths);  // pass both lists!
+        scanner.scan(javaFile, classDir, classDirs, jarPaths);
+
+        // Export findings
         VulnerabilityScanner.exportFindingsToJson(scanner.getFindings(), "findings.json");
+
+        // Print summary
+        System.out.println("\n========================================");
+        System.out.println("FINAL RESULTS");
+        System.out.println("========================================");
+        if (scanner.getFindings().isEmpty()) {
+            System.out.println("No vulnerabilities detected.");
+        } else {
+            System.out.println("Found " + scanner.getFindings().size() + " vulnerability(ies):\n");
+            for (ToJson finding : scanner.getFindings()) {
+                System.out.println(String.format("  • %s at line %d", (Object) finding.cwe, Optional.of(finding.line)));
+                System.out.println("    File: " + finding.filePath);
+                System.out.println();
+            }
+        }
     }
 }
