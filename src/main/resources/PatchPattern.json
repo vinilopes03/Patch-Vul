@@ -39,6 +39,28 @@
           "method_name": "setProperty",
           "arg_user_controlled": true
         }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "scope": "System",
+          "method_name": "clearProperty",
+          "arg_user_controlled": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setProperty",
+          "arg1_user_controlled": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "clearProperty",
+          "arg1_user_controlled": true
+        }
       }
     ]
   }
