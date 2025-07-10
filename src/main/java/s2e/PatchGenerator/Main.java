@@ -6,7 +6,7 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/CWE15_External_Control_of_System_or_Configuration_Setting__Environment_54a.java";
+        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/CWE15_External_Control_of_System_or_Configuration_Setting__Environment_54c.java";
         String patternFile = "/Users/vlopes/Desktop/git-projects/PatchVul/src/main/resources/PatchPattern.json";
         String supportFilesDir = "/Users/vlopes/Desktop/Java/src/testcasesupport";
         String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting";
@@ -66,7 +66,7 @@ public class Main {
         } else {
             System.out.println("Found " + scanner.getFindings().size() + " vulnerability(ies):\n");
             for (ToJson finding : scanner.getFindings()) {
-                System.out.println(String.format("  • %s at line %d", (Object) finding.cwe, Optional.of(finding.line)));
+                System.out.println(String.format("  • %s at line %d", finding.cwe, finding.line));
                 System.out.println("    File: " + finding.filePath);
                 System.out.println();
             }

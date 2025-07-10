@@ -1,8 +1,253 @@
 {
+  "CWE-15": {
+    "name": "External Control of System Setting",
+    "description": "The software does not properly prevent external input from controlling system settings",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "scope": "System",
+          "method_name": "setProperty"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "scope": "System",
+          "method_name": "getenv"
+        }
+      }
+    ]
+  },
+  "CWE-78": {
+    "name": "OS Command Injection",
+    "description": "The software constructs all or part of an OS command using externally-influenced input",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "scope": "Runtime.getRuntime()",
+          "method_name": "exec"
+        }
+      },
+      {
+        "node_type": "ObjectCreationExpr",
+        "fields": {
+          "type": "ProcessBuilder"
+        }
+      }
+    ]
+  },
+  "CWE-80": {
+    "name": "Cross-Site Scripting (XSS)",
+    "description": "The software does not neutralize or incorrectly neutralizes user-controllable input before it is placed in output",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "println",
+          "scope_contains": "response.getWriter()"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "print",
+          "scope_contains": "response.getWriter()"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "write",
+          "scope_contains": "response.getWriter()"
+        }
+      }
+    ]
+  },
+  "CWE-81": {
+    "name": "Improper Neutralization of Script in an Error Message Web Page",
+    "description": "The software receives input from an upstream component, but does not neutralize or incorrectly neutralizes special characters that could be interpreted as a script",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "sendError",
+          "scope_contains": "response"
+        }
+      },
+      {
+        "node_type": "ThrowStmt",
+        "fields": {
+          "exception_contains_user_input": true
+        }
+      }
+    ]
+  },
+  "CWE-83": {
+    "name": "Improper Neutralization of Script in Attributes in a Web Page",
+    "description": "The software does not neutralize or incorrectly neutralizes special characters in attributes of HTML elements",
+    "ast_patterns": [
+      {
+        "node_type": "BinaryExpr",
+        "fields": {
+          "operator": "PLUS",
+          "contains_html_attribute": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setAttribute"
+        }
+      }
+    ]
+  },
+  "CWE-89": {
+    "name": "SQL Injection",
+    "description": "The software constructs all or part of an SQL command using externally-influenced input",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "executeQuery",
+          "arg_contains_concatenation": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "executeUpdate",
+          "arg_contains_concatenation": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "execute",
+          "scope_type": "Statement",
+          "arg_contains_concatenation": true
+        }
+      },
+      {
+        "node_type": "BinaryExpr",
+        "fields": {
+          "operator": "PLUS",
+          "contains_sql_keywords": true
+        }
+      }
+    ]
+  },
+  "CWE-113": {
+    "name": "HTTP Response Splitting",
+    "description": "The software receives data from an upstream component, but does not neutralize or incorrectly neutralizes CR and LF characters",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "addHeader",
+          "scope_contains": "response"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setHeader",
+          "scope_contains": "response"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "addCookie",
+          "scope_contains": "response"
+        }
+      }
+    ]
+  },
+  "CWE-129": {
+    "name": "Improper Validation of Array Index",
+    "description": "The product uses untrusted input when calculating or using an array index without verifying the input",
+    "ast_patterns": [
+      {
+        "node_type": "ArrayAccessExpr",
+        "fields": {
+          "index_user_controlled": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "charAt",
+          "arg_user_controlled": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "get",
+          "scope_type": "List",
+          "arg_user_controlled": true
+        }
+      }
+    ]
+  },
+  "CWE-134": {
+    "name": "Uncontrolled Format String",
+    "description": "The software uses a function that accepts a format string as an argument, but the format string originates from an external source",
+    "ast_patterns": [
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "printf",
+          "arg1_user_controlled": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "format",
+          "scope": "String",
+          "arg1_user_controlled": true
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "format",
+          "scope_type": "Formatter",
+          "arg1_user_controlled": true
+        }
+      }
+    ]
+  },
+  "CWE-606": {
+    "name": "Unchecked Input for Loop Condition",
+    "description": "The product does not properly check inputs used in loop conditions, potentially leading to DoS",
+    "ast_patterns": [
+      {
+        "node_type": "ForStmt",
+        "fields": {
+          "condition_user_controlled": true
+        }
+      },
+      {
+        "node_type": "WhileStmt",
+        "fields": {
+          "condition_user_controlled": true
+        }
+      },
+      {
+        "node_type": "DoStmt",
+        "fields": {
+          "condition_user_controlled": true
+        }
+      }
+    ]
+  },
   "CWE-835": {
-    "id": "CWE-835",
     "name": "Infinite Loop",
-    "description": "Loops that never terminate, such as while(true), for(;;), do-while(true), or other always-true conditions without a break.",
+    "description": "Loops that never terminate",
     "ast_patterns": [
       {
         "node_type": "WhileStmt",
@@ -24,43 +269,6 @@
           "potentially_infinite": true
         },
         "has_break": false
-      }
-    ]
-  },
-  "CWE-15": {
-    "id": "CWE-15",
-    "name": "External Control of System Setting",
-    "description": "Setting system properties using untrusted user input.",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "scope": "System",
-          "method_name": "setProperty",
-          "arg_user_controlled": true
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "scope": "System",
-          "method_name": "clearProperty",
-          "arg_user_controlled": true
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setProperty",
-          "arg1_user_controlled": true
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "clearProperty",
-          "arg1_user_controlled": true
-        }
       }
     ]
   }
