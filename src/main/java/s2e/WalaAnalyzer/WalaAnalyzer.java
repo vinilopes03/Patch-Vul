@@ -37,7 +37,7 @@ public class WalaAnalyzer {
     private static final List<String> CWE15_SINKS = Arrays.asList(
             "setProperty", "clearProperty", "setCatalog", "setSchema",
             "setSessionContext", "setLogWriter", "setLoginTimeout",
-            "lookup", "setRequestProperty", "addRequestProperty"
+            "lookup", "setRequestProperty", "addRequestProperty", "badSink"
     );
 
     // Other CWE sinks
