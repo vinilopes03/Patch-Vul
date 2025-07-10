@@ -6,10 +6,10 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/CWE15_External_Control_of_System_or_Configuration_Setting__Environment_54c.java";
+        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE78_OS_Command_Injection/CWE78_OS_Command_Injection__connect_tcp_01.java";
         String patternFile = "/Users/vlopes/Desktop/git-projects/PatchVul/src/main/resources/PatchPattern.json";
         String supportFilesDir = "/Users/vlopes/Desktop/Java/src/testcasesupport";
-        String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting";
+        String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE78_OS_Command_Injection";
         String jarDir = "/Users/vlopes/Desktop/Java/lib/";
 
         // Check if files exist
