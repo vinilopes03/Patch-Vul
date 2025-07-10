@@ -14,7 +14,62 @@
         "node_type": "MethodCallExpr",
         "fields": {
           "scope": "System",
+          "method_name": "clearProperty"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "scope": "System",
           "method_name": "getenv"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setCatalog"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setSchema"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setSessionContext"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setLogWriter"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setLoginTimeout"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "lookup"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "setRequestProperty"
+        }
+      },
+      {
+        "node_type": "MethodCallExpr",
+        "fields": {
+          "method_name": "addRequestProperty"
         }
       }
     ]
@@ -26,7 +81,6 @@
       {
         "node_type": "MethodCallExpr",
         "fields": {
-          "scope": "Runtime.getRuntime()",
           "method_name": "exec"
         }
       },
@@ -46,21 +100,21 @@
         "node_type": "MethodCallExpr",
         "fields": {
           "method_name": "println",
-          "scope_contains": "response.getWriter()"
+          "scope_contains": "response"
         }
       },
       {
         "node_type": "MethodCallExpr",
         "fields": {
           "method_name": "print",
-          "scope_contains": "response.getWriter()"
+          "scope_contains": "response"
         }
       },
       {
         "node_type": "MethodCallExpr",
         "fields": {
           "method_name": "write",
-          "scope_contains": "response.getWriter()"
+          "scope_contains": "response"
         }
       }
     ]
@@ -75,12 +129,6 @@
           "method_name": "sendError",
           "scope_contains": "response"
         }
-      },
-      {
-        "node_type": "ThrowStmt",
-        "fields": {
-          "exception_contains_user_input": true
-        }
       }
     ]
   },
@@ -88,13 +136,6 @@
     "name": "Improper Neutralization of Script in Attributes in a Web Page",
     "description": "The software does not neutralize or incorrectly neutralizes special characters in attributes of HTML elements",
     "ast_patterns": [
-      {
-        "node_type": "BinaryExpr",
-        "fields": {
-          "operator": "PLUS",
-          "contains_html_attribute": true
-        }
-      },
       {
         "node_type": "MethodCallExpr",
         "fields": {
@@ -125,15 +166,7 @@
         "node_type": "MethodCallExpr",
         "fields": {
           "method_name": "execute",
-          "scope_type": "Statement",
           "arg_contains_concatenation": true
-        }
-      },
-      {
-        "node_type": "BinaryExpr",
-        "fields": {
-          "operator": "PLUS",
-          "contains_sql_keywords": true
         }
       }
     ]
@@ -178,16 +211,14 @@
       {
         "node_type": "MethodCallExpr",
         "fields": {
-          "method_name": "charAt",
-          "arg_user_controlled": true
+          "method_name": "charAt"
         }
       },
       {
         "node_type": "MethodCallExpr",
         "fields": {
           "method_name": "get",
-          "scope_type": "List",
-          "arg_user_controlled": true
+          "scope_type": "List"
         }
       }
     ]
@@ -199,24 +230,13 @@
       {
         "node_type": "MethodCallExpr",
         "fields": {
-          "method_name": "printf",
-          "arg1_user_controlled": true
+          "method_name": "printf"
         }
       },
       {
         "node_type": "MethodCallExpr",
         "fields": {
-          "method_name": "format",
-          "scope": "String",
-          "arg1_user_controlled": true
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "format",
-          "scope_type": "Formatter",
-          "arg1_user_controlled": true
+          "method_name": "format"
         }
       }
     ]
