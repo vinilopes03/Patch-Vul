@@ -6,11 +6,12 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE78_OS_Command_Injection/CWE78_OS_Command_Injection__connect_tcp_01.java";
+        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE113_HTTP_Response_Splitting/s01/CWE113_HTTP_Response_Splitting__connect_tcp_addCookieServlet_01.java";
         String patternFile = "/Users/vlopes/Desktop/git-projects/PatchVul/src/main/resources/PatchPattern.json";
         String supportFilesDir = "/Users/vlopes/Desktop/Java/src/testcasesupport";
-        String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE78_OS_Command_Injection";
+        String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE113_HTTP_Response_Splitting/s01";
         String jarDir = "/Users/vlopes/Desktop/Java/lib/";
+
 
         // Check if files exist
         File javaFileObj = new File(javaFile);

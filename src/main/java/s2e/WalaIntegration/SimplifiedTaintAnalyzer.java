@@ -64,10 +64,6 @@ public class SimplifiedTaintAnalyzer {
         this.cweSinks = sinks;
     }
 
-    /**
-     * Checks if there's a possible taint path in the call graph.
-     * Returns true if any CWE has both sources and sinks.
-     */
     public boolean hasTaintPath(String targetDir, List<String> classDirs, List<String> jarPaths) throws Exception {
         try {
             // Build analysis scope
@@ -96,6 +92,20 @@ public class SimplifiedTaintAnalyzer {
             // Build class hierarchy
             ClassHierarchy cha = ClassHierarchyFactory.make(scope);
 
+            // Debug: Count and list application classes
+            int appClassCount = 0;
+            List<String> appClasses = new ArrayList<>();
+            for (IClass klass : cha) {
+                if (klass.getClassLoader().getReference().equals(ClassLoaderReference.Application)) {
+                    appClassCount++;
+                    appClasses.add(klass.getName().toString());
+                }
+            }
+            System.out.println("  Application classes loaded: " + appClassCount);
+            if (appClassCount < 10) {  // List if few for debug
+                System.out.println("  Loaded classes: " + appClasses);
+            }
+
             // Find ALL methods in our target class as entrypoints
             List<Entrypoint> entrypoints = new ArrayList<>();
             for (IClass klass : cha) {
@@ -104,8 +114,9 @@ public class SimplifiedTaintAnalyzer {
                 }
 
                 String className = klass.getName().toString();
-                // Only analyze the target class
-                if (className.contains(targetClassName)) {
+                // Match full internal name to target (e.g., "Lpackage/Class" == "L" + targetClassName.replace('.', '/'))
+                String normalizedTarget = "L" + targetClassName.replace('.', '/');
+                if (className.equals(normalizedTarget)) {
                     // Add ALL declared methods as entrypoints (except constructors)
                     for (IMethod method : klass.getDeclaredMethods()) {
                         if (!method.isInit() && !method.isClinit()) {
@@ -117,7 +128,7 @@ public class SimplifiedTaintAnalyzer {
             }
 
             if (entrypoints.isEmpty()) {
-                System.out.println("  No methods found in target class");
+                System.out.println("  No methods found in target class: " + targetClassName);
                 return false;
             }
 
@@ -188,43 +199,49 @@ public class SimplifiedTaintAnalyzer {
             if (inst == null || !(inst instanceof SSAInvokeInstruction)) continue;
 
             SSAInvokeInstruction invoke = (SSAInvokeInstruction) inst;
+
+            // Get the full method signature from WALA
+            String fullSignature = invoke.getCallSite().getDeclaredTarget().getSignature();
             String methodName = invoke.getCallSite().getDeclaredTarget().getName().toString();
             String declaringClass = invoke.getCallSite().getDeclaredTarget().getDeclaringClass().getName().toString();
+
+            // Continue with the rest of the original code...
             String containingMethod = node.getMethod().getName().toString();
             String containingClass = node.getMethod().getDeclaringClass().getName().toString();
+
             int ssaIndex = inst.iIndex();
             int bytecodeIndex = -1;
             if (ssaIndex >= 0) {
                 bytecodeIndex = node.getIR().getControlFlowGraph().getProgramCounter(ssaIndex);
             }
             int line = (bytecodeIndex >= 0) ? node.getMethod().getLineNumber(bytecodeIndex) : -1;
-            String sourceFile = node.getMethod().getDeclaringClass().getSourceFileName();  // May be null
+            String sourceFile = node.getMethod().getDeclaringClass().getSourceFileName();
 
-            // Check sources per CWE
+            // Check sources per CWE using full signature
             for (Map.Entry<String, List<String>> entry : cweSources.entrySet()) {
                 String cweId = entry.getKey();
                 List<String> sources = entry.getValue();
-                if (sources.contains(methodName)) {
-                    boolean matches = true;
-                    if (methodName.equals("getenv") && !declaringClass.equals("Ljava/lang/System")) {
-                        matches = false;
-                    }
-                    if (matches) {
-                        foundSourcesPerCWE.computeIfAbsent(cweId, k -> new ArrayList<>())
-                                .add(new TaintElement(cweId, methodName, declaringClass, containingMethod, containingClass, sourceFile, line));
-                        System.out.println("    Found source for " + cweId + ": " + methodName + " in " + containingMethod + " at line " + line);
-                    }
+
+                if (sources.contains(fullSignature)) {
+                    foundSourcesPerCWE.computeIfAbsent(cweId, k -> new ArrayList<>())
+                            .add(new TaintElement(cweId, methodName, declaringClass,
+                                    containingMethod, containingClass, sourceFile, line));
+                    System.out.println("    Found source for " + cweId + ": " + fullSignature +
+                            " in " + containingMethod + " at line " + line);
                 }
             }
 
-            // Check sinks per CWE
+            // Check sinks per CWE using full signature
             for (Map.Entry<String, List<String>> entry : cweSinks.entrySet()) {
                 String cweId = entry.getKey();
                 List<String> sinks = entry.getValue();
-                if (sinks.contains(methodName)) {
+
+                if (sinks.contains(fullSignature)) {
                     foundSinksPerCWE.computeIfAbsent(cweId, k -> new ArrayList<>())
-                            .add(new TaintElement(cweId, methodName, declaringClass, containingMethod, containingClass, sourceFile, line));
-                    System.out.println("    Found sink for " + cweId + ": " + methodName + " in " + containingMethod + " at line " + line);
+                            .add(new TaintElement(cweId, methodName, declaringClass,
+                                    containingMethod, containingClass, sourceFile, line));
+                    System.out.println("    Found sink for " + cweId + ": " + fullSignature +
+                            " in " + containingMethod + " at line " + line);
                 }
             }
         }

@@ -1,7 +1,12 @@
 [
   {
-    "filePath": "/Users/vlopes/Desktop/Java/src/testcases/CWE78_OS_Command_Injection/CWE78_OS_Command_Injection__connect_tcp_01.java",
-    "line": 55,
-    "cwe": "CWE-78"
+    "filePath": "/Users/vlopes/Desktop/Java/src/testcases/CWE113_HTTP_Response_Splitting/s01/CWE113_HTTP_Response_Splitting__connect_tcp_addCookieServlet_01.java",
+    "line": 57,
+    "cwe": "CWE-113"
+  },
+  {
+    "filePath": "/Users/vlopes/Desktop/Java/src/testcases/CWE113_HTTP_Response_Splitting/s01/CWE113_HTTP_Response_Splitting__connect_tcp_addCookieServlet_01.java",
+    "line": 161,
+    "cwe": "CWE-113"
   }
 ]
