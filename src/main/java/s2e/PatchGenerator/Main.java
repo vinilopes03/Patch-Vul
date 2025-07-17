@@ -1,21 +1,23 @@
 package s2e.PatchGenerator;
 
 import s2e.Scanner.VulnerabilityScanner;
+
 import java.io.File;
 import java.util.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE113_HTTP_Response_Splitting/s01/CWE113_HTTP_Response_Splitting__connect_tcp_addCookieServlet_01.java";
-        String patternFile = "/Users/vlopes/Desktop/git-projects/PatchVul/src/main/resources/PatchPattern.json";
+        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/CWE15_External_Control_of_System_or_Configuration_Setting__Environment_54a.java";
+        String patternFile = "/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/resources/PatchPattern.json";
         String supportFilesDir = "/Users/vlopes/Desktop/Java/src/testcasesupport";
-        String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE113_HTTP_Response_Splitting/s01";
+        String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/";
         String jarDir = "/Users/vlopes/Desktop/Java/lib/";
-
+        String exclusionsFile = "/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/resources/exclusions.txt"; // Add your exclusions.txt path here
 
         // Check if files exist
         File javaFileObj = new File(javaFile);
         File patternFileObj = new File(patternFile);
+        File exclusionsFileObj = new File(exclusionsFile);
 
         if (!javaFileObj.exists()) {
             System.err.println("Java file not found: " + javaFile);
@@ -23,6 +25,10 @@ public class Main {
         }
         if (!patternFileObj.exists()) {
             System.err.println("Pattern file not found: " + patternFile);
+            return;
+        }
+        if (!exclusionsFileObj.exists()) {
+            System.err.println("Exclusions file not found: " + exclusionsFile);
             return;
         }
 
@@ -50,6 +56,7 @@ public class Main {
         System.out.println("Pattern file: " + patternFile);
         System.out.println("Class directory: " + classDir);
         System.out.println("Support files: " + supportFilesDir);
+        System.out.println("Exclusions file: " + exclusionsFile);
         System.out.println("========================================\n");
 
         VulnerabilityScanner scanner = new VulnerabilityScanner(patternFile);

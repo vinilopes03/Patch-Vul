@@ -9,6 +9,7 @@ public class PatternLoader {
     private final JsonObject patterns;
 
     public PatternLoader(String jsonPath) throws Exception {
+        System.out.println("Loading patterns from " + jsonPath);
         patterns = JsonParser.parseReader(new FileReader(jsonPath)).getAsJsonObject();
     }
 

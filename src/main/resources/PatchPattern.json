@@ -1,295 +1,201 @@
 {
   "CWE-15": {
-    "name": "External Control of System Setting",
-    "description": "The software does not properly prevent external input from controlling system settings",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "scope": "System",
-          "method_name": "setProperty"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "scope": "System",
-          "method_name": "clearProperty"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "scope": "System",
-          "method_name": "getenv"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setCatalog"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setSchema"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setSessionContext"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setLogWriter"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setLoginTimeout"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "lookup"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setRequestProperty"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "addRequestProperty"
-        }
-      }
+    "sources": [
+      "java.lang.System.getenv(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "java.util.Scanner.nextLine()Ljava/lang/String;"
+    ],
+    "sinks": [
+      "java.lang.System.setProperty(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+      "java.lang.System.clearProperty(Ljava/lang/String;)Ljava/lang/String;",
+      "java.sql.Connection.setCatalog(Ljava/lang/String;)V",
+      "java.sql.Connection.setSchema(Ljava/lang/String;)V",
+      "javax.naming.InitialContext.lookup(Ljava/lang/String;)Ljava/lang/Object;",
+      "java.net.URLConnection.setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V",
+      "java.net.URLConnection.addRequestProperty(Ljava/lang/String;Ljava/lang/String;)V",
+      "java.sql.Connection.setClientInfo(Ljava/lang/String;Ljava/lang/String;)V"
+    ],
+    "sanitizers": [
+      "org.owasp.esapi.ESAPI.validator().getValidInput(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IZ)Ljava/lang/String;"
     ]
   },
   "CWE-78": {
-    "name": "OS Command Injection",
-    "description": "The software constructs all or part of an OS command using externally-influenced input",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "exec"
-        }
-      },
-      {
-        "node_type": "ObjectCreationExpr",
-        "fields": {
-          "type": "ProcessBuilder"
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "java.util.Scanner.nextLine()Ljava/lang/String;",
+      "java.util.Scanner.next()Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
+      "java.lang.System.getProperty(Ljava/lang/String;)Ljava/lang/String;"
+    ],
+    "sinks": [
+      "java.lang.Runtime.exec(Ljava/lang/String;)Ljava/lang/Process;",
+      "java.lang.Runtime.exec([Ljava/lang/String;)Ljava/lang/Process;",
+      "java.lang.Runtime.exec(Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/Process;",
+      "java.lang.ProcessBuilder.command([Ljava/lang/String;)Ljava/lang/ProcessBuilder;",
+      "java.lang.ProcessBuilder.command(Ljava/util/List;)Ljava/lang/ProcessBuilder;",
+      "java.lang.ProcessBuilder.start()Ljava/lang/Process;"
+    ],
+    "sanitizers": [
+      "org.owasp.esapi.ESAPI.validator().getValidSafeHTML(Ljava/lang/String;Ljava/lang/String;IZ)Ljava/lang/String;",
+      "java.lang.String.replaceAll([\\s;] , )"
     ]
   },
   "CWE-80": {
-    "name": "Cross-Site Scripting (XSS)",
-    "description": "The software does not neutralize or incorrectly neutralizes user-controllable input before it is placed in output",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "println",
-          "scope_contains": "response"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "print",
-          "scope_contains": "response"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "write",
-          "scope_contains": "response"
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getQueryString()Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getPathInfo()Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getRequestURI()Ljava/lang/String;",
+      "javax.servlet.http.Cookie.getValue()Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;"
+    ],
+    "sinks": [
+      "java.io.PrintWriter.println(Ljava/lang/String;)V",
+      "java.io.PrintWriter.print(Ljava/lang/String;)V",
+      "java.io.PrintWriter.write(Ljava/lang/String;)V",
+      "javax.servlet.ServletOutputStream.print(Ljava/lang/String;)V",
+      "javax.servlet.ServletOutputStream.println(Ljava/lang/String;)V",
+      "javax.servlet.jsp.JspWriter.print(Ljava/lang/String;)V",
+      "javax.servlet.jsp.JspWriter.println(Ljava/lang/String;)V"
+    ],
+    "sanitizers": [
+      "org.owasp.encoder.Encode.forHtml(Ljava/lang/String;)Ljava/lang/String;",
+      "org.apache.commons.text.StringEscapeUtils.escapeHtml4(Ljava/lang/String;)Ljava/lang/String;",
+      "org.owasp.esapi.ESAPI.encoder().encodeForHTML(Ljava/lang/String;)Ljava/lang/String;"
     ]
   },
   "CWE-81": {
-    "name": "Improper Neutralization of Script in an Error Message Web Page",
-    "description": "The software receives input from an upstream component, but does not neutralize or incorrectly neutralizes special characters that could be interpreted as a script",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "sendError",
-          "scope_contains": "response"
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getQueryString()Ljava/lang/String;",
+      "java.lang.Exception.getMessage()Ljava/lang/String;",
+      "java.lang.Throwable.toString()Ljava/lang/String;"
+    ],
+    "sinks": [
+      "javax.servlet.http.HttpServletResponse.sendError(ILjava/lang/String;)V",
+      "javax.servlet.http.HttpServletResponse.sendError(I)V"
+    ],
+    "sanitizers": [
+      "org.owasp.encoder.Encode.forHtml(Ljava/lang/String;)Ljava/lang/String;",
+      "org.owasp.esapi.ESAPI.encoder().encodeForHTML(Ljava/lang/String;)Ljava/lang/String;"
     ]
   },
   "CWE-83": {
-    "name": "Improper Neutralization of Script in Attributes in a Web Page",
-    "description": "The software does not neutralize or incorrectly neutralizes special characters in attributes of HTML elements",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setAttribute"
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getAttribute(Ljava/lang/String;)Ljava/lang/Object;"
+    ],
+    "sinks": [
+      "javax.servlet.http.HttpServletRequest.setAttribute(Ljava/lang/String;Ljava/lang/Object;)V",
+      "javax.servlet.ServletContext.setAttribute(Ljava/lang/String;Ljava/lang/Object;)V",
+      "javax.servlet.http.HttpSession.setAttribute(Ljava/lang/String;Ljava/lang/Object;)V"
+    ],
+    "sanitizers": [
+      "org.owasp.encoder.Encode.forHtmlAttribute(Ljava/lang/String;)Ljava/lang/String;",
+      "org.owasp.esapi.ESAPI.encoder().encodeForHTMLAttribute(Ljava/lang/String;)Ljava/lang/String;"
     ]
   },
   "CWE-89": {
-    "name": "SQL Injection",
-    "description": "The software constructs all or part of an SQL command using externally-influenced input",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "executeQuery",
-          "arg_contains_concatenation": true
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "executeUpdate",
-          "arg_contains_concatenation": true
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "execute",
-          "arg_contains_concatenation": true
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "java.util.Scanner.nextLine()Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getQueryString()Ljava/lang/String;"
+    ],
+    "sinks": [
+      "java.sql.Statement.executeQuery(Ljava/lang/String;)Ljava/sql/ResultSet;",
+      "java.sql.Statement.executeUpdate(Ljava/lang/String;)I",
+      "java.sql.Statement.execute(Ljava/lang/String;)Z",
+      "java.sql.Statement.execute(Ljava/lang/String;I)Z",
+      "java.sql.Statement.addBatch(Ljava/lang/String;)V",
+      "java.sql.Connection.prepareStatement(Ljava/lang/String;)Ljava/sql/PreparedStatement;",
+      "java.sql.Connection.prepareCall(Ljava/lang/String;)Ljava/sql/CallableStatement;"
+    ],
+    "sanitizers": [
+      "java.sql.PreparedStatement.setString(ILjava/lang/String;)V",
+      "java.sql.PreparedStatement.setInt(II)V",
+      "org.owasp.esapi.ESAPI.validator().getValidSafeSQL(Ljava/lang/String;Ljava/lang/String;IZ)Ljava/lang/String;"
     ]
   },
   "CWE-113": {
-    "name": "HTTP Response Splitting",
-    "description": "The software receives data from an upstream component, but does not neutralize or incorrectly neutralizes CR and LF characters",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "addHeader",
-          "scope_contains": "response"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "setHeader",
-          "scope_contains": "response"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "addCookie",
-          "scope_contains": "response"
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "javax.servlet.http.Cookie.getValue()Ljava/lang/String;"
+    ],
+    "sinks": [
+      "javax.servlet.http.HttpServletResponse.addHeader(Ljava/lang/String;Ljava/lang/String;)V",
+      "javax.servlet.http.HttpServletResponse.setHeader(Ljava/lang/String;Ljava/lang/String;)V",
+      "javax.servlet.http.HttpServletResponse.addCookie(Ljavax/servlet/http/Cookie;)V",
+      "javax.servlet.http.HttpServletResponse.setDateHeader(Ljava/lang/String;J)V",
+      "javax.servlet.http.HttpServletResponse.addDateHeader(Ljava/lang/String;J)V",
+      "javax.servlet.http.HttpServletResponse.setIntHeader(Ljava/lang/String;I)V"
+    ],
+    "sanitizers": [
+      "java.net.URLEncoder.encode(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+      "org.owasp.esapi.ESAPI.encoder().encodeForURL(Ljava/lang/String;)Ljava/lang/String;"
     ]
   },
   "CWE-129": {
-    "name": "Improper Validation of Array Index",
-    "description": "The product uses untrusted input when calculating or using an array index without verifying the input",
-    "ast_patterns": [
-      {
-        "node_type": "ArrayAccessExpr",
-        "fields": {
-          "index_user_controlled": true
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "charAt"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "get",
-          "scope_type": "List"
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "java.util.Scanner.nextLine()Ljava/lang/String;",
+      "java.util.Scanner.nextInt()I",
+      "java.lang.Integer.parseInt(Ljava/lang/String;)I",
+      "java.lang.Integer.valueOf(Ljava/lang/String;)Ljava/lang/Integer;"
+    ],
+    "sinks": [
+      "java.util.List.get(I)Ljava/lang/Object;",
+      "java.util.ArrayList.get(I)Ljava/lang/Object;",
+      "java.util.Vector.elementAt(I)Ljava/lang/Object;",
+      "java.util.List.remove(I)Ljava/lang/Object;",
+      "java.util.List.add(ILjava/lang/Object;)V",
+      "java.util.List.set(ILjava/lang/Object;)Ljava/lang/Object;",
+      "java.lang.String.substring(I)Ljava/lang/String;",
+      "java.lang.String.substring(II)Ljava/lang/String;"
+    ],
+    "sanitizers": [
+      "org.owasp.esapi.ESAPI.validator().getValidInteger(Ljava/lang/String;Ljava/lang/String;IIZ)Ljava/lang/Integer;"
     ]
   },
   "CWE-134": {
-    "name": "Uncontrolled Format String",
-    "description": "The software uses a function that accepts a format string as an argument, but the format string originates from an external source",
-    "ast_patterns": [
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "printf"
-        }
-      },
-      {
-        "node_type": "MethodCallExpr",
-        "fields": {
-          "method_name": "format"
-        }
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "java.util.Scanner.nextLine()Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;"
+    ],
+    "sinks": [
+      "java.io.PrintStream.printf(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintStream;",
+      "java.io.PrintWriter.printf(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintWriter;",
+      "java.lang.String.format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;",
+      "java.lang.String.format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;",
+      "java.util.Formatter.format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/util/Formatter;"
+    ],
+    "sanitizers": [
+      "org.owasp.esapi.ESAPI.validator().getValidSafeHTML(Ljava/lang/String;Ljava/lang/String;IZ)Ljava/lang/String;"
     ]
   },
   "CWE-606": {
-    "name": "Unchecked Input for Loop Condition",
-    "description": "The product does not properly check inputs used in loop conditions, potentially leading to DoS",
-    "ast_patterns": [
-      {
-        "node_type": "ForStmt",
-        "fields": {
-          "condition_user_controlled": true
-        }
-      },
-      {
-        "node_type": "WhileStmt",
-        "fields": {
-          "condition_user_controlled": true
-        }
-      },
-      {
-        "node_type": "DoStmt",
-        "fields": {
-          "condition_user_controlled": true
-        }
-      }
-    ]
-  },
-  "CWE-835": {
-    "name": "Infinite Loop",
-    "description": "Loops that never terminate",
-    "ast_patterns": [
-      {
-        "node_type": "WhileStmt",
-        "fields": {
-          "potentially_infinite": true
-        },
-        "has_break": false
-      },
-      {
-        "node_type": "ForStmt",
-        "fields": {
-          "potentially_infinite": true
-        },
-        "has_break": false
-      },
-      {
-        "node_type": "DoStmt",
-        "fields": {
-          "potentially_infinite": true
-        },
-        "has_break": false
-      }
+    "sources": [
+      "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "java.util.Scanner.nextLine()Ljava/lang/String;",
+      "java.util.Scanner.nextInt()I",
+      "java.lang.Integer.parseInt(Ljava/lang/String;)I",
+      "java.lang.Integer.valueOf(Ljava/lang/String;)Ljava/lang/Integer;"
+    ],
+    "sinks": [],
+    "sanitizers": [
+      "org.owasp.esapi.ESAPI.validator().getValidInteger(Ljava/lang/String;Ljava/lang/String;IIZ)Ljava/lang/Integer;"
     ]
   }
 }

@@ -24,6 +24,7 @@ public class SimplifiedTaintAnalyzer {
     private final String targetClassName;
     private final Map<String, List<String>> cweSources;
     private final Map<String, List<String>> cweSinks;
+    private final Map<String, List<String>> cweSanitizers;
 
     // Collect details
     private final Map<String, List<TaintElement>> foundSourcesPerCWE = new HashMap<>();
@@ -58,10 +59,12 @@ public class SimplifiedTaintAnalyzer {
 
     public SimplifiedTaintAnalyzer(String targetClassName,
                                    Map<String, List<String>> sources,
-                                   Map<String, List<String>> sinks) {
+                                   Map<String, List<String>> sinks,
+                                   Map<String, List<String>> sanitizers) {
         this.targetClassName = targetClassName;
         this.cweSources = sources;
         this.cweSinks = sinks;
+        this.cweSanitizers = sanitizers;
     }
 
     public boolean hasTaintPath(String targetDir, List<String> classDirs, List<String> jarPaths) throws Exception {
@@ -114,10 +117,8 @@ public class SimplifiedTaintAnalyzer {
                 }
 
                 String className = klass.getName().toString();
-                // Match full internal name to target (e.g., "Lpackage/Class" == "L" + targetClassName.replace('.', '/'))
                 String normalizedTarget = "L" + targetClassName.replace('.', '/');
                 if (className.equals(normalizedTarget)) {
-                    // Add ALL declared methods as entrypoints (except constructors)
                     for (IMethod method : klass.getDeclaredMethods()) {
                         if (!method.isInit() && !method.isClinit()) {
                             entrypoints.add(new DefaultEntrypoint(method, cha));
@@ -172,13 +173,13 @@ public class SimplifiedTaintAnalyzer {
                 }
             }
 
-            // Check if any CWE has both source and sink
+            // Check if any CWE has sinks (now tainted sinks)
             boolean hasAnyPath = false;
             for (String cweId : cweSources.keySet()) {
                 if (foundSourcesPerCWE.containsKey(cweId) && !foundSourcesPerCWE.get(cweId).isEmpty() &&
                         foundSinksPerCWE.containsKey(cweId) && !foundSinksPerCWE.get(cweId).isEmpty()) {
                     hasAnyPath = true;
-                    System.out.println("  Found sources and sinks for " + cweId);
+                    System.out.println("  Found sources and tainted sinks for " + cweId);
                 }
             }
 
@@ -195,53 +196,132 @@ public class SimplifiedTaintAnalyzer {
         IR ir = node.getIR();
         if (ir == null) return;
 
-        for (SSAInstruction inst : ir.getInstructions()) {
-            if (inst == null || !(inst instanceof SSAInvokeInstruction)) continue;
+        DefUse du = node.getDU();
 
-            SSAInvokeInstruction invoke = (SSAInvokeInstruction) inst;
+        for (String cweId : cweSources.keySet()) {
+            Set<Integer> tainted = new HashSet<>();
+            Queue<Integer> workList = new LinkedList<>();
 
-            // Get the full method signature from WALA
-            String fullSignature = invoke.getCallSite().getDeclaredTarget().getSignature();
-            String methodName = invoke.getCallSite().getDeclaredTarget().getName().toString();
-            String declaringClass = invoke.getCallSite().getDeclaredTarget().getDeclaringClass().getName().toString();
+            // Find sources for this CWE
+            for (int idx = 0; idx < ir.getInstructions().length; idx++) {
+                SSAInstruction inst = ir.getInstructions()[idx];
+                if (inst == null || !(inst instanceof SSAInvokeInstruction)) continue;
 
-            // Continue with the rest of the original code...
-            String containingMethod = node.getMethod().getName().toString();
-            String containingClass = node.getMethod().getDeclaringClass().getName().toString();
+                SSAInvokeInstruction invoke = (SSAInvokeInstruction) inst;
 
-            int ssaIndex = inst.iIndex();
-            int bytecodeIndex = -1;
-            if (ssaIndex >= 0) {
-                bytecodeIndex = node.getIR().getControlFlowGraph().getProgramCounter(ssaIndex);
-            }
-            int line = (bytecodeIndex >= 0) ? node.getMethod().getLineNumber(bytecodeIndex) : -1;
-            String sourceFile = node.getMethod().getDeclaringClass().getSourceFileName();
+                String sig = invoke.getDeclaredTarget().getSignature();
 
-            // Check sources per CWE using full signature
-            for (Map.Entry<String, List<String>> entry : cweSources.entrySet()) {
-                String cweId = entry.getKey();
-                List<String> sources = entry.getValue();
+                List<String> sources = cweSources.get(cweId);
+                if (sources != null && sources.contains(sig)) {
 
-                if (sources.contains(fullSignature)) {
+                    if (invoke.hasDef()) {
+                        int def = invoke.getDef();
+                        if (!tainted.contains(def)) {
+                            tainted.add(def);
+                            workList.add(def);
+                        }
+                    }
+
+                    // Record source
+                    int ssaIndex = inst.iIndex();
+                    int bytecodeIndex = ir.getControlFlowGraph().getProgramCounter(ssaIndex);
+                    int line = (bytecodeIndex >= 0) ? node.getMethod().getLineNumber(bytecodeIndex) : -1;
+                    String sourceFile = node.getMethod().getDeclaringClass().getSourceFileName();
+
+                    String methodName = invoke.getDeclaredTarget().getName().toString();
+                    String className = invoke.getDeclaredTarget().getDeclaringClass().getName().toString();
+                    String containingMethod = node.getMethod().getName().toString();
+                    String containingClassName = node.getMethod().getDeclaringClass().getName().toString();
+
                     foundSourcesPerCWE.computeIfAbsent(cweId, k -> new ArrayList<>())
-                            .add(new TaintElement(cweId, methodName, declaringClass,
-                                    containingMethod, containingClass, sourceFile, line));
-                    System.out.println("    Found source for " + cweId + ": " + fullSignature +
+                            .add(new TaintElement(cweId, methodName, className, containingMethod, containingClassName, sourceFile, line));
+                    System.out.println("    Found source for " + cweId + ": " + sig +
                             " in " + containingMethod + " at line " + line);
                 }
             }
 
-            // Check sinks per CWE using full signature
-            for (Map.Entry<String, List<String>> entry : cweSinks.entrySet()) {
-                String cweId = entry.getKey();
-                List<String> sinks = entry.getValue();
+            // Propagate taint for this CWE
+            List<String> sanitizers = cweSanitizers.getOrDefault(cweId, Collections.emptyList());
 
-                if (sinks.contains(fullSignature)) {
-                    foundSinksPerCWE.computeIfAbsent(cweId, k -> new ArrayList<>())
-                            .add(new TaintElement(cweId, methodName, declaringClass,
-                                    containingMethod, containingClass, sourceFile, line));
-                    System.out.println("    Found sink for " + cweId + ": " + fullSignature +
-                            " in " + containingMethod + " at line " + line);
+            while (!workList.isEmpty()) {
+                int v = workList.poll();
+                Iterator<SSAInstruction> uses = du.getUses(v);
+                while (uses.hasNext()) {
+                    SSAInstruction useInst = uses.next();
+
+                    // Propagate to def if applicable
+                    if (useInst.hasDef()) {
+                        boolean propagates = true;
+                        if (useInst instanceof SSAInvokeInstruction) {
+                            SSAInvokeInstruction invoke = (SSAInvokeInstruction) useInst;
+                            String sig = invoke.getDeclaredTarget().getSignature();
+                            if (sanitizers.contains(sig)) {
+                                propagates = false;
+                            }
+                        }
+                        if (propagates) {
+                            int def = useInst.getDef();
+                            if (!tainted.contains(def)) {
+                                tainted.add(def);
+                                workList.add(def);
+                            }
+                        }
+                    }
+
+                    // Special handling for constructors
+                    if (useInst instanceof SSAInvokeInstruction) {
+                        SSAInvokeInstruction invoke = (SSAInvokeInstruction) useInst;
+                        if (invoke.getDeclaredTarget().isInit()) {
+                            boolean paramTainted = false;
+                            for (int p = 1; p < invoke.getNumberOfUses(); p++) {
+                                if (invoke.getUse(p) == v) {
+                                    paramTainted = true;
+                                    break;
+                                }
+                            }
+                            if (paramTainted) {
+                                int receiver = invoke.getUse(0);
+                                if (!tainted.contains(receiver)) {
+                                    tainted.add(receiver);
+                                    workList.add(receiver);
+                                }
+                            }
+                        }
+                    }
+
+                    // Check for sinks for this CWE
+                    if (useInst instanceof SSAInvokeInstruction) {
+                        SSAInvokeInstruction invoke = (SSAInvokeInstruction) useInst;
+                        String sig = invoke.getDeclaredTarget().getSignature();
+                        List<String> sinks = cweSinks.get(cweId);
+                        if (sinks != null && sinks.contains(sig)) {
+                            boolean isArg = false;
+                            int start = invoke.isStatic() ? 0 : 1;
+                            for (int p = start; p < invoke.getNumberOfUses(); p++) {
+                                if (invoke.getUse(p) == v) {
+                                    isArg = true;
+                                    break;
+                                }
+                            }
+                            if (isArg) {
+                                // Tainted sink found
+                                int ssaIndex = useInst.iIndex();
+                                int bytecodeIndex = ir.getControlFlowGraph().getProgramCounter(ssaIndex);
+                                int line = (bytecodeIndex >= 0) ? node.getMethod().getLineNumber(bytecodeIndex) : -1;
+                                String sourceFile = node.getMethod().getDeclaringClass().getSourceFileName();
+
+                                String methodName = invoke.getDeclaredTarget().getName().toString();
+                                String className = invoke.getDeclaredTarget().getDeclaringClass().getName().toString();
+                                String containingMethod = node.getMethod().getName().toString();
+                                String containingClassName = node.getMethod().getDeclaringClass().getName().toString();
+
+                                foundSinksPerCWE.computeIfAbsent(cweId, k -> new ArrayList<>())
+                                        .add(new TaintElement(cweId, methodName, className, containingMethod, containingClassName, sourceFile, line));
+                                System.out.println("    Found tainted sink for " + cweId + ": " + sig +
+                                        " in " + containingMethod + " at line " + line);
+                            }
+                        }
+                    }
                 }
             }
         }
