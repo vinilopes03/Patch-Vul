@@ -25,6 +25,7 @@ public class SimplifiedTaintAnalyzer {
     private final Map<String, List<String>> cweSources;
     private final Map<String, List<String>> cweSinks;
     private final Map<String, List<String>> cweSanitizers;
+    private String analyzedFilePath;  // Add this field
 
     // Collect details per entrypoint method
     private final Map<String, Map<String, List<TaintElement>>> foundSourcesByEntry = new HashMap<>();
@@ -70,11 +71,13 @@ public class SimplifiedTaintAnalyzer {
     public SimplifiedTaintAnalyzer(String targetClassName,
                                    Map<String, List<String>> sources,
                                    Map<String, List<String>> sinks,
-                                   Map<String, List<String>> sanitizers) {
+                                   Map<String, List<String>> sanitizers,
+                                   String filePath) {  // Add parameter
         this.targetClassName = targetClassName;
         this.cweSources = sources;
         this.cweSinks = sinks;
         this.cweSanitizers = sanitizers;
+        this.analyzedFilePath = filePath;
     }
 
     public boolean hasTaintPath(String targetDir, List<String> classDirs, List<String> jarPaths) throws Exception {
