@@ -1,19 +1,21 @@
-package s2e.ConditionAnalyzer;
+package s2e.condition;
+
 import com.github.javaparser.ast.expr.*;
 
-
 public class ConditionAnalyzer {
-    // Try to decide if an expression is "potentially always true"
+
     public boolean isPotentiallyInfiniteCondition(Expression expr) {
         expr = unwrapExpr(expr);
         if (expr == null) return false;
 
-        if (expr.isBooleanLiteralExpr() && expr.asBooleanLiteralExpr().getValue())
+        if (expr.isBooleanLiteralExpr() && expr.asBooleanLiteralExpr().getValue()) {
             return true;
+        }
 
         if (expr.isBinaryExpr()) {
             BinaryExpr be = expr.asBinaryExpr();
             BinaryExpr.Operator op = be.getOperator();
+
             if (be.getLeft().isLiteralExpr() && be.getRight().isLiteralExpr()) {
                 try {
                     int left = Integer.parseInt(be.getLeft().toString());
@@ -27,6 +29,7 @@ public class ConditionAnalyzer {
                     }
                 } catch (Exception ignore) {}
             }
+
             if (be.getLeft().isNameExpr() && be.getRight().isIntegerLiteralExpr()) {
                 int right = Integer.parseInt(be.getRight().asIntegerLiteralExpr().getValue());
                 switch (op) {
@@ -39,7 +42,6 @@ public class ConditionAnalyzer {
         return false;
     }
 
-    // Remove parentheses, etc.
     private Expression unwrapExpr(Expression expr) {
         while (expr != null && expr.isEnclosedExpr()) {
             expr = expr.asEnclosedExpr().getInner();

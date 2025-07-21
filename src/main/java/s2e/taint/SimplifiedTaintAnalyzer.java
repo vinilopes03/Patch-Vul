@@ -1,4 +1,4 @@
-package s2e.WalaIntegration;
+package s2e.taint;
 
 import com.ibm.wala.classLoader.BinaryDirectoryTreeModule;
 import com.ibm.wala.classLoader.IClass;
@@ -14,6 +14,7 @@ import com.ibm.wala.ssa.*;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.ipa.callgraph.AnalysisCacheImpl;
 import com.ibm.wala.ipa.callgraph.AnalysisOptions;
+import s2e.util.Pair;
 
 import java.io.File;
 import java.util.*;
@@ -25,54 +26,16 @@ public class SimplifiedTaintAnalyzer {
     private final Map<String, List<String>> cweSources;
     private final Map<String, List<String>> cweSinks;
     private final Map<String, List<String>> cweSanitizers;
-    private String analyzedFilePath;  // Add this field
+    private String analyzedFilePath;
 
-    // Collect details per entrypoint method
     private final Map<String, Map<String, List<TaintElement>>> foundSourcesByEntry = new HashMap<>();
     private final Map<String, Map<String, List<TaintElement>>> foundSinksByEntry = new HashMap<>();
-
-    public static class TaintElement {
-        String cweId;
-        public String methodName;
-        public String className;
-        public String containingMethod;
-        public String containingClassName;
-        public String sourceFileName;  // May be null if no debug info
-        public int line;
-
-        public TaintElement(String cweId, String methodName, String className, String containingMethod, String containingClassName, String sourceFileName, int line) {
-            this.cweId = cweId;
-            this.methodName = methodName;
-            this.className = className;
-            this.containingMethod = containingMethod;
-            this.containingClassName = containingClassName;
-            this.sourceFileName = sourceFileName;
-            this.line = line;
-        }
-
-        @Override
-        public String toString() {
-            return methodName + " in " + containingMethod + " (" + className +
-                    (sourceFileName != null ? ", file: " + sourceFileName : "") +
-                    ") at line " + (line > 0 ? line : "unknown");
-        }
-    }
-
-    public static class Pair<A, B> {
-        A first;
-        B second;
-
-        public Pair(A first, B second) {
-            this.first = first;
-            this.second = second;
-        }
-    }
 
     public SimplifiedTaintAnalyzer(String targetClassName,
                                    Map<String, List<String>> sources,
                                    Map<String, List<String>> sinks,
                                    Map<String, List<String>> sanitizers,
-                                   String filePath) {  // Add parameter
+                                   String filePath) {
         this.targetClassName = targetClassName;
         this.cweSources = sources;
         this.cweSinks = sinks;
@@ -82,10 +45,8 @@ public class SimplifiedTaintAnalyzer {
 
     public boolean hasTaintPath(String targetDir, List<String> classDirs, List<String> jarPaths) throws Exception {
         try {
-            // Build analysis scope
             AnalysisScope scope = AnalysisScopeReader.instance.makePrimordialScope(null);
 
-            // Add directories and JARs
             File targetDirFile = new File(targetDir);
             if (targetDirFile.exists() && targetDirFile.isDirectory()) {
                 scope.addToScope(ClassLoaderReference.Application, new BinaryDirectoryTreeModule(targetDirFile));
@@ -105,10 +66,8 @@ public class SimplifiedTaintAnalyzer {
                 }
             }
 
-            // Build class hierarchy
             ClassHierarchy cha = ClassHierarchyFactory.make(scope);
 
-            // Debug: Count and list application classes
             int appClassCount = 0;
             List<String> appClasses = new ArrayList<>();
             for (IClass klass : cha) {
@@ -118,11 +77,10 @@ public class SimplifiedTaintAnalyzer {
                 }
             }
             System.out.println("  Application classes loaded: " + appClassCount);
-            if (appClassCount < 10) {  // List if few for debug
+            if (appClassCount < 10) {
                 System.out.println("  Loaded classes: " + appClasses);
             }
 
-            // Find ALL methods in our target class as entrypoints
             List<Entrypoint> entrypoints = new ArrayList<>();
             for (IClass klass : cha) {
                 if (!klass.getClassLoader().getReference().equals(ClassLoaderReference.Application)) {
@@ -146,18 +104,15 @@ public class SimplifiedTaintAnalyzer {
                 return false;
             }
 
-            // Reset collections
             foundSourcesByEntry.clear();
             foundSinksByEntry.clear();
 
-            // Base options and cache
             AnalysisOptions baseOptions = new AnalysisOptions(scope, null);
             baseOptions.setReflectionOptions(AnalysisOptions.ReflectionOptions.NONE);
             IAnalysisCacheView cache = new AnalysisCacheImpl();
 
             boolean hasAnyPath = false;
 
-            // Analyze per entrypoint
             for (Entrypoint ep : entrypoints) {
                 String entryMethod = ep.getMethod().getName().toString();
                 System.out.println("  Analyzing from entrypoint: " + entryMethod);
@@ -165,10 +120,7 @@ public class SimplifiedTaintAnalyzer {
                 AnalysisOptions options = new AnalysisOptions(scope, Collections.singleton(ep));
                 options.setReflectionOptions(AnalysisOptions.ReflectionOptions.NONE);
 
-                CallGraphBuilder<?> builder = Util.makeZeroCFABuilder(
-                        Language.JAVA, options, cache, cha
-                );
-
+                CallGraphBuilder<?> builder = Util.makeZeroCFABuilder(Language.JAVA, options, cache, cha);
                 CallGraph cg = builder.makeCallGraph(options, null);
                 System.out.println("    Call graph for " + entryMethod + " built with " + cg.getNumberOfNodes() + " nodes");
 
@@ -197,7 +149,6 @@ public class SimplifiedTaintAnalyzer {
         Map<CGNode, Set<Integer>> tainted = new HashMap<>();
         Queue<Pair<CGNode, Integer>> worklist = new LinkedList<>();
 
-        // Seed sources
         for (CGNode node : cg) {
             if (!isApplicationClass(node)) continue;
 
@@ -217,7 +168,6 @@ public class SimplifiedTaintAnalyzer {
                     tainted.get(node).add(def);
                     worklist.add(new Pair<>(node, def));
 
-                    // Record source per entry
                     int ssaIndex = inst.iIndex();
                     int bytecodeIndex = ir.getControlFlowGraph().getProgramCounter(ssaIndex);
                     int line = (bytecodeIndex >= 0) ? node.getMethod().getLineNumber(bytecodeIndex) : -1;
@@ -237,7 +187,6 @@ public class SimplifiedTaintAnalyzer {
             }
         }
 
-        // Propagate taint
         while (!worklist.isEmpty()) {
             Pair<CGNode, Integer> item = worklist.poll();
             CGNode node = item.first;
@@ -247,12 +196,11 @@ public class SimplifiedTaintAnalyzer {
             if (ir == null) continue;
 
             DefUse du = node.getDU();
-
             Iterator<SSAInstruction> uses = du.getUses(v);
+
             while (uses.hasNext()) {
                 SSAInstruction useInst = uses.next();
 
-                // Propagate to def
                 if (useInst.hasDef()) {
                     boolean propagates = true;
                     if (useInst instanceof SSAInvokeInstruction) {
@@ -272,7 +220,6 @@ public class SimplifiedTaintAnalyzer {
                     }
                 }
 
-                // Special handling for constructors
                 if (useInst instanceof SSAInvokeInstruction) {
                     SSAInvokeInstruction invoke = (SSAInvokeInstruction) useInst;
                     if (invoke.getDeclaredTarget().isInit()) {
@@ -294,7 +241,6 @@ public class SimplifiedTaintAnalyzer {
                     }
                 }
 
-                // Check for sinks
                 if (useInst instanceof SSAInvokeInstruction) {
                     SSAInvokeInstruction invoke = (SSAInvokeInstruction) useInst;
                     String sig = invoke.getDeclaredTarget().getSignature();
@@ -308,7 +254,6 @@ public class SimplifiedTaintAnalyzer {
                             }
                         }
                         if (isArg) {
-                            // Record tainted sink per entry
                             int ssaIndex = useInst.iIndex();
                             int bytecodeIndex = ir.getControlFlowGraph().getProgramCounter(ssaIndex);
                             int line = (bytecodeIndex >= 0) ? node.getMethod().getLineNumber(bytecodeIndex) : -1;
@@ -328,7 +273,6 @@ public class SimplifiedTaintAnalyzer {
                     }
                 }
 
-                // Propagate to callees (parameters)
                 if (useInst instanceof SSAInvokeInstruction) {
                     SSAInvokeInstruction invoke = (SSAInvokeInstruction) useInst;
                     int useIndex = -1;
@@ -352,7 +296,6 @@ public class SimplifiedTaintAnalyzer {
 
                             boolean isStatic = invoke.isStatic();
                             if (useIndex == 0 && !isStatic) {
-                                // Receiver
                                 int receiverSSA = 1;
                                 Set<Integer> calleeTainted = tainted.get(callee);
                                 if (!calleeTainted.contains(receiverSSA)) {
@@ -360,7 +303,6 @@ public class SimplifiedTaintAnalyzer {
                                     worklist.add(new Pair<>(callee, receiverSSA));
                                 }
                             } else {
-                                // Parameter
                                 int paramNum = useIndex - (isStatic ? 0 : 1);
                                 int paramSSA = (callee.getMethod().isStatic() ? 1 : 2) + paramNum;
                                 Set<Integer> calleeTainted = tainted.get(callee);
@@ -373,7 +315,6 @@ public class SimplifiedTaintAnalyzer {
                     }
                 }
 
-                // Propagate from returns to callers
                 if (useInst instanceof SSAReturnInstruction) {
                     SSAReturnInstruction retInst = (SSAReturnInstruction) useInst;
                     if (retInst.getResult() == v) {
@@ -424,7 +365,6 @@ public class SimplifiedTaintAnalyzer {
                 sinksForEntry.containsKey(cweId) && !sinksForEntry.get(cweId).isEmpty();
     }
 
-    // Getters for reporting
     public Map<String, Map<String, List<TaintElement>>> getFoundSinksByEntryPerCWE() {
         return foundSinksByEntry;
     }

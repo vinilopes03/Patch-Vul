@@ -1,4 +1,4 @@
-package s2e.Utils; // (Or your chosen package)
+package s2e.util;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -10,30 +10,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MethodSignatureExtractor {
+
     public static List<String> extractMethodSignatures(String javaFile) throws Exception {
         File file = new File(javaFile);
         JavaParser parser = new JavaParser();
-        CompilationUnit cu = parser.parse(file).getResult().orElseThrow(() -> new RuntimeException("Parse failed"));
-        String packageName = cu.getPackageDeclaration().map(pd -> pd.getNameAsString()).orElse("");
+        CompilationUnit cu = parser.parse(file).getResult()
+                .orElseThrow(() -> new RuntimeException("Parse failed"));
+
+        String packageName = cu.getPackageDeclaration()
+                .map(pd -> pd.getNameAsString()).orElse("");
+
         List<String> signatures = new ArrayList<>();
+
         for (ClassOrInterfaceDeclaration clazz : cu.findAll(ClassOrInterfaceDeclaration.class)) {
             String className = clazz.getNameAsString();
             String fqcn = (packageName.isEmpty() ? className : packageName + "." + className);
-            for (MethodDeclaration m : clazz.getMethods()) {
-                StringBuilder sig = new StringBuilder(fqcn + "." + m.getNameAsString() + "(");
-                for (var p : m.getParameters()) {
-                    sig.append(jvmTypeDescriptor(p.getType().asString()));
+
+            for (MethodDeclaration method : clazz.getMethods()) {
+                StringBuilder sig = new StringBuilder(fqcn + "." + method.getNameAsString() + "(");
+
+                for (var param : method.getParameters()) {
+                    sig.append(jvmTypeDescriptor(param.getType().asString()));
                 }
-                sig.append(")").append(jvmTypeDescriptor(m.getType().asString()));
+
+                sig.append(")").append(jvmTypeDescriptor(method.getType().asString()));
                 signatures.add(sig.toString());
             }
         }
         return signatures;
     }
 
-    // Basic JVM descriptor mapping
-    public static String jvmTypeDescriptor(String t) {
-        switch (t) {
+    public static String jvmTypeDescriptor(String type) {
+        switch (type) {
             case "int": return "I";
             case "boolean": return "Z";
             case "long": return "J";
@@ -42,17 +50,24 @@ public class MethodSignatureExtractor {
             case "void": return "V";
             case "String": return "Ljava/lang/String;";
             default:
-                if (t.endsWith("[]")) return "[" + jvmTypeDescriptor(t.substring(0, t.length()-2));
-                return "L" + t.replace('.', '/') + ";";
+                if (type.endsWith("[]")) {
+                    return "[" + jvmTypeDescriptor(type.substring(0, type.length() - 2));
+                }
+                return "L" + type.replace('.', '/') + ";";
         }
     }
 
     public static String getFullyQualifiedClassName(String javaFile) throws Exception {
         File file = new File(javaFile);
         JavaParser parser = new JavaParser();
-        CompilationUnit cu = parser.parse(file).getResult().orElseThrow(() -> new RuntimeException("Parse failed"));
-        String packageName = cu.getPackageDeclaration().map(pd -> pd.getNameAsString()).orElse("");
-        String className = cu.getPrimaryTypeName().orElseThrow(() -> new RuntimeException("No class found"));
+        CompilationUnit cu = parser.parse(file).getResult()
+                .orElseThrow(() -> new RuntimeException("Parse failed"));
+
+        String packageName = cu.getPackageDeclaration()
+                .map(pd -> pd.getNameAsString()).orElse("");
+        String className = cu.getPrimaryTypeName()
+                .orElseThrow(() -> new RuntimeException("No class found"));
+
         return packageName.isEmpty() ? className : packageName + "." + className;
     }
 }

@@ -1,9 +1,7 @@
-package s2e.PatternAnalyzer;
+package s2e.pattern;
+
 import com.google.gson.*;
-
-
 import java.io.FileReader;
-
 
 public class PatternLoader {
     private final JsonObject patterns;

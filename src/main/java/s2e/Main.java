@@ -9,12 +9,12 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/CWE15_External_Control_of_System_or_Configuration_Setting__Environment_54a.java";
-        String patternFile = "/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/resources/patterns/cwe-patterns.json";
+        String javaFile = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/CWE15_External_Control_of_System_or_Configuration_Setting__Environment_61a.java";
+        String patternFile = "/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/resources/cwe-patterns.json";
         String supportFilesDir = "/Users/vlopes/Desktop/Java/src/testcasesupport";
         String classDir = "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/";
         String jarDir = "/Users/vlopes/Desktop/Java/lib/";
-        String exclusionsFile = "/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/resources/config/exclusions.txt";
+        String exclusionsFile = "/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/resources/exclusions.txt";
 
         if (!validateFiles(javaFile, patternFile, exclusionsFile)) {
             return;
