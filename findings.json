@@ -1,7 +1,7 @@
 [
   {
-    "filePath": "/Users/vlopes/Desktop/Java/src/testcases/CWE15_External_Control_of_System_or_Configuration_Setting/CWE15_External_Control_of_System_or_Configuration_Setting__Environment_61a.java",
-    "line": 41,
-    "cwe": "CWE-15"
+    "filePath": "/Users/vlopes/Desktop/git-projects/CommitRepository/testcase-0-commits/src/main/java/testcases/CWE113_HTTP_Response_Splitting/s01/CWE113_HTTP_Response_Splitting__Environment_addCookieServlet_01.java",
+    "line": 16,
+    "cwe": "CWE-113"
   }
 ]

@@ -1,0 +1,11 @@
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/Main.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/PatchGenerator/ToJson.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/condition/ConditionAnalyzer.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/model/Finding.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/pattern/PatternLoader.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/pattern/PatternMatcher.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/scanner/VulnerabilityScanner.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/taint/SimplifiedTaintAnalyzer.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/taint/TaintElement.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/util/MethodSignatureExtractor.java
+/Users/vlopes/Desktop/git-projects/Patch-Vul/src/main/java/s2e/util/Pair.java

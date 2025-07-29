@@ -4,7 +4,10 @@
       "java.lang.System.getenv(Ljava/lang/String;)Ljava/lang/String;",
       "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
       "java.io.BufferedReader.readLine()Ljava/lang/String;",
-      "java.util.Scanner.nextLine()Ljava/lang/String;"
+      "java.util.Scanner.nextLine()Ljava/lang/String;",
+      "java.io.FileInputStream.<init>(Ljava/lang/String;)V",
+      "java.io.FileReader.<init>(Ljava/lang/String;)V",
+      "java.nio.file.Files.readAllBytes(Ljava/nio/file/Path;) [and other readAll* methods]"
     ],
     "sinks": [
       "java.lang.System.setProperty(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
@@ -14,7 +17,10 @@
       "javax.naming.InitialContext.lookup(Ljava/lang/String;)Ljava/lang/Object;",
       "java.net.URLConnection.setRequestProperty(Ljava/lang/String;Ljava/lang/String;)V",
       "java.net.URLConnection.addRequestProperty(Ljava/lang/String;Ljava/lang/String;)V",
-      "java.sql.Connection.setClientInfo(Ljava/lang/String;Ljava/lang/String;)V"
+      "java.sql.Connection.setClientInfo(Ljava/lang/String;Ljava/lang/String;)V",
+      "java.io.FileOutputStream.<init>(Ljava/lang/String;)V",
+      "java.io.File.<init>(Ljava/lang/String;)V",
+      "java.nio.file.Files.createFile(Ljava/nio/file/Path;[Ljava/nio/file/attribute/FileAttribute;)Ljava/nio/file/Path;"
     ],
     "sanitizers": [
       "org.owasp.esapi.ESAPI.validator().getValidInput(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IZ)Ljava/lang/String;"
@@ -27,7 +33,8 @@
       "java.util.Scanner.nextLine()Ljava/lang/String;",
       "java.util.Scanner.next()Ljava/lang/String;",
       "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
-      "java.lang.System.getProperty(Ljava/lang/String;)Ljava/lang/String;"
+      "java.lang.System.getProperty(Ljava/lang/String;)Ljava/lang/String;",
+      "java.nio.file.Files.readString(Ljava/nio/file/Path;)Ljava/lang/String;"
     ],
     "sinks": [
       "java.lang.Runtime.exec(Ljava/lang/String;)Ljava/lang/Process;",
@@ -35,11 +42,13 @@
       "java.lang.Runtime.exec(Ljava/lang/String;[Ljava/lang/String;)Ljava/lang/Process;",
       "java.lang.ProcessBuilder.command([Ljava/lang/String;)Ljava/lang/ProcessBuilder;",
       "java.lang.ProcessBuilder.command(Ljava/util/List;)Ljava/lang/ProcessBuilder;",
-      "java.lang.ProcessBuilder.start()Ljava/lang/Process;"
+      "java.lang.ProcessBuilder.start()Ljava/lang/Process;",
+      "javax.script.ScriptEngine.eval(Ljava/lang/String;)Ljava/lang/Object;",
+      "org.apache.commons.exec.DefaultExecutor.execute(Lorg/apache/commons/exec/CommandLine;)I"
     ],
     "sanitizers": [
       "org.owasp.esapi.ESAPI.validator().getValidSafeHTML(Ljava/lang/String;Ljava/lang/String;IZ)Ljava/lang/String;",
-      "java.lang.String.replaceAll([\\s;] , )"
+      "java.lang.String.replaceAll([\\s;],\"\")"
     ]
   },
   "CWE-80": {
@@ -50,7 +59,9 @@
       "javax.servlet.http.HttpServletRequest.getPathInfo()Ljava/lang/String;",
       "javax.servlet.http.HttpServletRequest.getRequestURI()Ljava/lang/String;",
       "javax.servlet.http.Cookie.getValue()Ljava/lang/String;",
-      "java.io.BufferedReader.readLine()Ljava/lang/String;"
+      "javax.servlet.http.HttpServletRequest.getCookies()[Ljavax/servlet/http/Cookie;",
+      "java.io.BufferedReader.readLine()Ljava/lang/String;",
+      "java.io.Reader.read([CII)I"
     ],
     "sinks": [
       "java.io.PrintWriter.println(Ljava/lang/String;)V",
@@ -59,7 +70,10 @@
       "javax.servlet.ServletOutputStream.print(Ljava/lang/String;)V",
       "javax.servlet.ServletOutputStream.println(Ljava/lang/String;)V",
       "javax.servlet.jsp.JspWriter.print(Ljava/lang/String;)V",
-      "javax.servlet.jsp.JspWriter.println(Ljava/lang/String;)V"
+      "javax.servlet.jsp.JspWriter.println(Ljava/lang/String;)V",
+      "javax.servlet.jsp.tagext.BodyContent.write(Ljava/lang/String;)V",
+      "org.apache.velocity.Template.merge(Ljava/io/Writer;Ljava/util/Map;)V",
+      "freemarker.template.Template.process(Ljava/lang/Object;Ljava/io/Writer;)V"
     ],
     "sanitizers": [
       "org.owasp.encoder.Encode.forHtml(Ljava/lang/String;)Ljava/lang/String;",
@@ -106,7 +120,9 @@
       "java.io.BufferedReader.readLine()Ljava/lang/String;",
       "java.util.Scanner.nextLine()Ljava/lang/String;",
       "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
-      "javax.servlet.http.HttpServletRequest.getQueryString()Ljava/lang/String;"
+      "javax.servlet.http.HttpServletRequest.getQueryString()Ljava/lang/String;",
+      "java.sql.ResultSet.getString(I)Ljava/lang/String;",
+      "javax.persistence.Query.setParameter(ILjava/lang/Object;)Ljavax/persistence/Query;"
     ],
     "sinks": [
       "java.sql.Statement.executeQuery(Ljava/lang/String;)Ljava/sql/ResultSet;",
@@ -115,7 +131,9 @@
       "java.sql.Statement.execute(Ljava/lang/String;I)Z",
       "java.sql.Statement.addBatch(Ljava/lang/String;)V",
       "java.sql.Connection.prepareStatement(Ljava/lang/String;)Ljava/sql/PreparedStatement;",
-      "java.sql.Connection.prepareCall(Ljava/lang/String;)Ljava/sql/CallableStatement;"
+      "java.sql.Connection.prepareCall(Ljava/lang/String;)Ljava/sql/CallableStatement;",
+      "javax.persistence.EntityManager.createQuery(Ljava/lang/String;)Ljavax/persistence/Query;",
+      "org.springframework.jdbc.core.JdbcTemplate.queryForList(Ljava/lang/String;[Ljava/lang/Object;)Ljava/util/List;"
     ],
     "sanitizers": [
       "java.sql.PreparedStatement.setString(ILjava/lang/String;)V",
@@ -128,7 +146,10 @@
       "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
       "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
       "java.io.BufferedReader.readLine()Ljava/lang/String;",
-      "javax.servlet.http.Cookie.getValue()Ljava/lang/String;"
+      "javax.servlet.http.Cookie.getValue()Ljava/lang/String;",
+      "javax.servlet.http.HttpServletRequest.getCookies()[Ljavax/servlet/http/Cookie;",
+      "java.lang.System.getenv(Ljava/lang/String;)Ljava/lang/String;",
+      "java.io.InputStreamReader.read([CII)I"
     ],
     "sinks": [
       "javax.servlet.http.HttpServletResponse.addHeader(Ljava/lang/String;Ljava/lang/String;)V",
@@ -136,7 +157,9 @@
       "javax.servlet.http.HttpServletResponse.addCookie(Ljavax/servlet/http/Cookie;)V",
       "javax.servlet.http.HttpServletResponse.setDateHeader(Ljava/lang/String;J)V",
       "javax.servlet.http.HttpServletResponse.addDateHeader(Ljava/lang/String;J)V",
-      "javax.servlet.http.HttpServletResponse.setIntHeader(Ljava/lang/String;I)V"
+      "javax.servlet.http.HttpServletResponse.setIntHeader(Ljava/lang/String;I)V",
+      "javax.servlet.http.HttpServletResponse.sendRedirect(Ljava/lang/String;)V",
+      "javax.servlet.http.HttpServletResponse.encodeURL(Ljava/lang/String;)Ljava/lang/String;"
     ],
     "sanitizers": [
       "java.net.URLEncoder.encode(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
@@ -150,7 +173,8 @@
       "java.util.Scanner.nextLine()Ljava/lang/String;",
       "java.util.Scanner.nextInt()I",
       "java.lang.Integer.parseInt(Ljava/lang/String;)I",
-      "java.lang.Integer.valueOf(Ljava/lang/String;)Ljava/lang/Integer;"
+      "java.lang.Integer.valueOf(Ljava/lang/String;)Ljava/lang/Integer;",
+      "java.util.StringTokenizer.nextToken()Ljava/lang/String;"
     ],
     "sinks": [
       "java.util.List.get(I)Ljava/lang/Object;",
@@ -160,7 +184,9 @@
       "java.util.List.add(ILjava/lang/Object;)V",
       "java.util.List.set(ILjava/lang/Object;)Ljava/lang/Object;",
       "java.lang.String.substring(I)Ljava/lang/String;",
-      "java.lang.String.substring(II)Ljava/lang/String;"
+      "java.lang.String.substring(II)Ljava/lang/String;",
+      "java.lang.reflect.Array.get([Ljava/lang/Object;I)Ljava/lang/Object;",
+      "java.util.List.subList(II)Ljava/util/List;"
     ],
     "sanitizers": [
       "org.owasp.esapi.ESAPI.validator().getValidInteger(Ljava/lang/String;Ljava/lang/String;IIZ)Ljava/lang/Integer;"
@@ -171,14 +197,17 @@
       "javax.servlet.http.HttpServletRequest.getParameter(Ljava/lang/String;)Ljava/lang/String;",
       "java.io.BufferedReader.readLine()Ljava/lang/String;",
       "java.util.Scanner.nextLine()Ljava/lang/String;",
-      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;"
+      "javax.servlet.http.HttpServletRequest.getHeader(Ljava/lang/String;)Ljava/lang/String;",
+      "java.util.Formatter.formatTo(Ljava/lang/Appendable;Ljava/lang/String;[Ljava/lang/Object;)Ljava/util/Formatter;",
+      "java.lang.StringBuilder.append(Ljava/lang/Object;)Ljava/lang/StringBuilder;"
     ],
     "sinks": [
       "java.io.PrintStream.printf(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintStream;",
       "java.io.PrintWriter.printf(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintWriter;",
       "java.lang.String.format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;",
       "java.lang.String.format(Ljava/util/Locale;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;",
-      "java.util.Formatter.format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/util/Formatter;"
+      "java.util.Formatter.format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/util/Formatter;",
+      "java.io.PrintWriter.format(Ljava/lang/String;[Ljava/lang/Object;)Ljava/io/PrintWriter;"
     ],
     "sanitizers": [
       "org.owasp.esapi.ESAPI.validator().getValidSafeHTML(Ljava/lang/String;Ljava/lang/String;IZ)Ljava/lang/String;"
